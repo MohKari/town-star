@@ -27,6 +27,10 @@
     // ToDo: Add button to UI.
 
     'use strict';
+
+    // items to track
+    // ToDo: make this dynamic and track everything
+    // ToDo: will need a UI to "hide" things you don't want to see
     let trackedItems = [
         {item: 'Wool', count: 0, first: 0, oneMin: 0, oneHour: 0},
         {item: 'Wood', count: 0, first: 0, oneMin: 0, oneHour: 0},
@@ -36,21 +40,31 @@
         {item: 'Candy_Canes', count: 0, first: 0, oneMin: 0, oneHour: 0},
         {item: 'Gasoline', count: 0, first: 0, oneMin: 0, oneHour: 0},
     ];
-    let loaded = 0;
 
     // clones the trackedItems, you need this so you can reset the array
     let trackedItemsClone;
 
-    new MutationObserver(function(mutations) {
-        if (document.querySelector('.hud .right .hud-right') && loaded == 0) {
+    // observer to check when we can add stuff to the UI
+    let observer = new MutationObserver(function(m){
+
+        // if element exists
+        if($('.hud .right .hud-right').length) {
+
+            console.log('SCRIPT "production-rate-monitor-with-reset" HAS STARTED.');
+
+            // dont watch anymore
+            observer.disconnect();
 
             // at run time, clone the trackedItems into trackedItemsClone
             trackedItemsClone = JSON.parse(JSON.stringify(trackedItems));
 
-            loaded = 1;
-            LoadProductionMonitor();
+            // run
+            run();
+
         }
-    }).observe(document, {childList: true, subtree: true});
+
+    });
+    observer.observe(document, {childList: true , subtree: true});
 
     /**
      * Resets the tracked items, back to zero!
@@ -59,7 +73,7 @@
         trackedItems = JSON.parse(JSON.stringify(trackedItemsClone));
     }
 
-    function LoadProductionMonitor() {
+    function run() {
 
         // add ui shit
         let trackedHud = document.createElement('div');
