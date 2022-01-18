@@ -4,7 +4,7 @@
 // @version      0.4
 // @description  TownStar Auto Sell
 // @author       MohKari
-// @match        https://app.gala.games/games/town-star/play/
+// @match        *://*.sandbox-games.com/*
 // @grant        none
 // @run-at       document-start
 // @require      https://code.jquery.com/jquery-3.6.0.min.js

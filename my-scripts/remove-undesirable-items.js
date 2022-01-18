@@ -4,7 +4,7 @@
 // @version      0.2
 // @description  Remove all Marsh's Tree's and Rock's.
 // @author       MohKari
-// @match        https://app.gala.games/games/town-star/play/
+// @match        *://*.sandbox-games.com/*
 // @grant        none
 // @run-at       document-start
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
