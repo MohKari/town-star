@@ -10,6 +10,9 @@ Mostly for debugging.
 ### key-commands.js
 Lets you bind key presses to logic. Should "speed up" game play by preventing repetitive clicking.
 
+### production-rate-monitor-with-reset.js
+Similar to Grooves, but includes a reset button and the tracked item list is self generating.
+
 ### quick-location-basic.js
 On "The World" screen, allows you to click a tile and "whiz" through the popups.
 
