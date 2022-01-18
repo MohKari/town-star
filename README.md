@@ -2,6 +2,9 @@
 A collection of scripts related to [Town Star](https://townstar.com/).
 My scripts are for use with tampermonkey to make game play "easier".
 
+## My Scripts
+[View my scripts](https://github.com/MohKari/town-star/tree/main/my-scripts)
+
 ## Instructions
 ToDo.
 
