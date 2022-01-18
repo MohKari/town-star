@@ -5,7 +5,7 @@
 // @description  Monitor production rate of specified craft items.
 // @author       MohKari
 // @credits      Groove
-// @match        https://app.gala.games/games/town-star/play/
+// @match        *://*.sandbox-games.com/*
 // @grant        none
 // @run-at       document-start
 // @require      https://code.jquery.com/jquery-3.6.0.min.js
@@ -17,46 +17,29 @@
     // HOW TO USE SCRIPT //
     ///////////////////////
 
-    // Don't, in Dev.
+    // 1. Run it, the UI will auto populate as your workers deliver items.
 
     ///////////
     // NOTES //
     ///////////
 
-    // ToDo: Rewrite into own style.
-    // ToDo: Add button to UI.
+    // 1. I think energy doesn't get tracked?
 
-    'use strict';
+    // ToDo: Attach the UI to the items on the left.
 
-    // items to track
-    // ToDo: make this dynamic and track everything
-    // ToDo: will need a UI to "hide" things you don't want to see
-    let trackedItems = [
-        {item: 'Wool', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Wood', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Sugarcane', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Sugar', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Peppermint', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Candy_Canes', count: 0, first: 0, oneMin: 0, oneHour: 0},
-        {item: 'Gasoline', count: 0, first: 0, oneMin: 0, oneHour: 0},
-    ];
+    // will auto populate/display while game is running
+    let list = {};
 
-    // clones the trackedItems, you need this so you can reset the array
-    let trackedItemsClone;
-
-    // observer to check when we can add stuff to the UI
+    // observer to check if script should run or not, script wont run if you already have a town placed.
     let observer = new MutationObserver(function(m){
 
-        // if element exists
-        if($('.hud .right .hud-right').length) {
+        // hud-right must exist
+        if($('.hud-right').length){
 
             console.log('SCRIPT "production-rate-monitor-with-reset" HAS STARTED.');
 
             // dont watch anymore
             observer.disconnect();
-
-            // at run time, clone the trackedItems into trackedItemsClone
-            trackedItemsClone = JSON.parse(JSON.stringify(trackedItems));
 
             // run
             run();
@@ -66,41 +49,138 @@
     });
     observer.observe(document, {childList: true , subtree: true});
 
+
     /**
      * Resets the tracked items, back to zero!
      */
-    function resetTrackedItems(){
-        trackedItems = JSON.parse(JSON.stringify(trackedItemsClone));
+    function resetList(){
+
+        console.log("reset button hit.");
+
+        // remove existing ui
+        $('#mk-prm-table').remove();
+        $('#mk-prm-reset').remove();
+
+        // re-add ui
+        startUI();
+
+        // empty list
+        list = {};
     }
 
+    /**
+     * Update item in list
+     * @param  {[type]} item
+     */
+    function updateItem(item){
+
+        console.log("updateItem: " + item);
+
+        // increase count
+        list[item].count++;
+
+        // update minute/hour
+        let count = list[item].count;
+        let first = list[item].first;
+        let diff = Date.now() - first;
+
+        list[item].minute = count / ( diff / 60000 );
+        list[item].hour = count / ( diff / 3600000 );
+
+    }
+
+    /**
+     * Add new item to tracked list
+     * @param  {[type]} item
+     */
+    function newItem(item){
+
+        console.log("newItem: " + item);
+
+        // add new default item
+        list[item] = {
+            count: 1,
+            first: Date.now(),
+            minute: 0,
+            hour: 0
+        };
+
+        // some styles yo!
+        let itemStyle = "max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+
+        // add new row to table
+        let html = "<tr id='mk-prm-" + item + "'>";
+                html += "<td class='item' style='" + itemStyle + "'>" + item + "</td>";
+                html += "<td class='count'></td>";
+                html += "<td class='minute'></td>";
+                html += "<td class='hour'></td>";
+            html += "</tr>";
+        $('#mk-prm-table').append(html);
+
+    }
+
+    /**
+     * Update the UI
+     * @param  {[type]} item
+     */
+    function updateUI(item){
+
+        console.log("updateUI: " + item);
+
+        let count = list[item].count;
+        let minute = list[item].minute.toFixed(1);
+        let hour = list[item].hour.toFixed(1);
+
+        // update ui
+        $("#mk-prm-" + item + " .count").html(count);
+        $("#mk-prm-" + item + " .minute").html(minute);
+        $("#mk-prm-" + item + " .hour").html(hour);
+
+    }
+
+    /**
+     * Add elements to UI
+     */
+    function startUI(){
+
+        // some inline css for our table
+        let tableStyle = "border-radius: 8px; box-shadow: 2px 2px 27px 0px #000; border: 1px solid #cccccc; background-color: #ffffff;";
+        tableStyle += "width:100%;"
+
+        // add some html
+        let html = "<table id='mk-prm-table' style='" + tableStyle + "'>";
+                html += "<tr>";
+                    html += "<td>Item</td>";
+                    html += "<td>#</td>";
+                    html += "<td>min</td>";
+                    html += "<td>hour</td>";
+                html += "</tr>";
+            html += "</table>";
+        $('.hud-right').after(html);
+
+        // bootstrap like button
+        let buttonStyle = "margin-top:5px; margin-bottom:5px; color:#212529; background-color:#f0ad4e; border-color: #eea236;";
+        buttonStyle += "display: inline-block; margin-bottom: 0; font-weight: 400; text-align: center; white-space: nowrap;";
+        buttonStyle += "vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer;";
+        buttonStyle += "background-image: none; border: 1px solid transparent; padding: 6px 12px; font-size: 14px;";
+        buttonStyle += "line-height: 1.42857143; border-radius: 4px; -webkit-user-select: none; -moz-user-select: none;";
+        buttonStyle += "-ms-user-select: none; user-select: none; font-family: inherit; -webkit-appearance: button; cursor: pointer;";
+        buttonStyle += "text-transform: none; overflow: visible; margin: 0;";
+        buttonStyle += "width:100%;"
+
+        // add button with listener
+        let button = '<button id="mk-prm-reset" style="' + buttonStyle + '"/>Reset</button>';
+        $('#mk-prm-table').after(button);
+        $("#mk-prm-reset").click(resetList);
+
+    }
+
+    /**
+     * Run!
+     */
     function run() {
 
-        // add ui shit
-        let trackedHud = document.createElement('div');
-        trackedHud.id = 'tracked-items';
-        let trackedItemHeader = document.createElement('div');
-        trackedItemHeader.id = 'tracked-item-header';
-        trackedItemHeader.classList.add('bank');
-        trackedItemHeader.style = 'width: 75%;';
-        trackedItemHeader.innerHTML = 'Craft:&nbsp;Count&nbsp;|&nbsp;/1Min&nbsp;|&nbsp;/1Hour';
-        trackedHud.appendChild(trackedItemHeader);
-        let hudRight = document.querySelector('.hud .right .hud-right');
-        hudRight.insertBefore(trackedHud, hudRight.querySelector('.right-hud').nextSibling);
-
-        // add button to reset
-        let button = '<input id="grove-reset" type="button" value="new button"/>';
-        $('body').append(button);
-        $("#grove-reset").click(resetTrackedItems);
-
-        // add more ui shit
-        for (let item of trackedItems) {
-            let trackedItemElem = document.createElement('div');
-            trackedItemElem.id = 'tracked-item-' + item.item;
-            trackedItemElem.classList.add('bank', 'contextual');
-            trackedItemElem.style = 'width: 75%;';
-            trackedItemElem.innerHTML = item.item + ':&nbsp;Count&nbsp;|&nbsp;/1Min&nbsp;|&nbsp;/1Hour';
-            trackedHud.appendChild(trackedItemElem);
-        }
+        startUI();
 
         // making a new class....
         class TrackUnitDeliverOutputTask extends UnitDeliverOutputTask {
@@ -111,36 +191,34 @@
                 // make sure to do the original onArrive functionality
                 super.onArrive();
 
-                let trackedItem = trackedItems.find(item => item.item.toUpperCase() == this.craft.toUpperCase())
+                // let trackedItem = trackedItems.find(item => item.item.toUpperCase() == this.craft.toUpperCase())
+                let item = this.craft.toUpperCase();
 
-                if (trackedItem) {
-
-                    // add one to the count, cuz an item just got dropped off
-                    trackedItem.count++;
-
-                    if (trackedItem.count == 1) {
-                        trackedItem.first = Date.now();
-                    } else {
-                        let timeDiff = Date.now() - trackedItem.first;
-                        trackedItem.oneMin = trackedItem.count / (timeDiff / 60000)
-                        trackedItem.oneHour = trackedItem.count / (timeDiff / 3600000)
-                    }
-
-                    // write to ui
-                    let html = trackedItem.item + ':&nbsp;<b>' + trackedItem.count + '</b>&nbsp;|&nbsp;<b>' + trackedItem.oneMin.toFixed(2) + '</b>&nbsp;|&nbsp;<b>' + trackedItem.oneHour.toFixed(2) + '</b>';
-                    document.getElementById('tracked-item-' + trackedItem.item).innerHTML = html;
-
+                // if we are already tracking the item, update its values
+                if(list[item]){
+                    updateItem(item);
+                // else make it as a new item
+                }else{
+                    newItem(item);
                 }
+
+                // then update the ui
+                updateUI(item);
 
             }
 
         }
 
+        // not gonna lie... not too sure what this is doing
         let origfindDeliverOutputTask = TS_UnitLogic.prototype.findDeliverOutputTask;
         TS_UnitLogic.prototype.findDeliverOutputTask = function(t) {
+
+            // this method gets called when someone picks up something or drops it off?
             let origReturn = origfindDeliverOutputTask.call(this, t);
             return origReturn ? new TrackUnitDeliverOutputTask(origReturn.unit,origReturn.targetObject,t) : null
+
         }
+
     }
 
 })();
