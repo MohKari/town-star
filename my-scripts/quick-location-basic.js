@@ -22,7 +22,7 @@ $(function() {
     // NOTES //
     ///////////
 
-    // 1. Chance your town will be removed, as the script is faster than a human.
+    // 1. Chance your account could be banned, as the script is faster than a human.
     // 2. Use at your own risk.
 
     // desired name
