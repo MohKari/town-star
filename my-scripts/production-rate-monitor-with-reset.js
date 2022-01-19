@@ -25,7 +25,8 @@
 
     // 1. I think energy doesn't get tracked?
 
-    // ToDo: Attach the UI to the items on the left.
+    // ToDo: Replace item name with image.
+    // ToDo: Add on screen timer.
 
     // will auto populate/display while game is running
     let list = {};
