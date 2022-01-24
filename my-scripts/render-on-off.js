@@ -28,7 +28,7 @@
         // hud-right must exist
         if($('.hud-right').length){
 
-            console.log('SCRIPT "production-rate-monitor-with-reset" HAS STARTED.');
+            console.log('SCRIPT "render-on-off" HAS STARTED.');
 
             // dont watch anymore
             observer.disconnect();
