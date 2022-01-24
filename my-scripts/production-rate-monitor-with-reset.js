@@ -122,8 +122,6 @@
         // clone image when available
         let image = await cloneImageWhenAvailable('.hud-craft-display-' + item);
 
-        console.log(image);
-
         // copy image into my table
         $('#' + id + ' .item').html("").append(image);
         $('#' + id + ' .hud-craft-icon').css("width", 24);
