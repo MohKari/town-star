@@ -23,14 +23,14 @@
     // NOTES //
     ///////////
 
-    // 1. I think energy doesn't get tracked?
-
-    // ToDo: Add on screen timer.
     // ToDo: Add $$ and points to tracket.
     // ToDo: Add exclude list ( any items you want to perm NOT report ( Petroleum )
 
     // will auto populate/display while game is running
     let list = {};
+
+    // if true, you will get a onscreen "stop watch", otherwise set to false
+    let timeStart = true;
 
     // observer to check if script should run or not, script wont run if you already have a town placed.
     let observer = new MutationObserver(function(m){
@@ -154,42 +154,9 @@
      */
     function startUI(){
 
-        // add some html
-        let html = "<table id='mk-prm-table'>";
-                html += "<tr>";
-                    html += "<td>Item</td>";
-                    html += "<td>#</td>";
-                    html += "<td>min</td>";
-                    html += "<td>hour</td>";
-                html += "</tr>";
-            html += "</table>";
-        $('.hud-right').after(html);
-
-                // add some simple css to the button
-        $("#mk-prm-table").css({
-            'border':'1px solid #ccc',
-            'background-color':'#fff',
-            'width':'92%',
-            'margin-top':'10px',
-            'border-radius':'5px',
-            'opacity':'0.8',
-            'border-spacing':'10px',
-            'border-collapse':'separate'
-        });
-
-        // add button with listener
-        let button = '<button id="mk-prm-reset"/>Reset</button>';
-        $('#mk-prm-table').after(button);
-        $("#mk-prm-reset").click(resetList);
-
-        // add some simple css to the button
-        $("#mk-prm-reset").css({
-            'width':'92%',
-            'padding':'5px',
-            'margin':'10px 0px',
-            'border-radius':'5px',
-            'border':'solid 1px #ccc'
-        });
+        addTable();
+        addRestartButton();
+        addClock();
 
     }
 
@@ -239,6 +206,98 @@
 
     }
 
+    /**
+     * Add table HTML
+     */
+    function addTable(){
+
+        let html = "<table id='mk-prm-table'>";
+                html += "<tr>";
+                    html += "<td>Item</td>";
+                    html += "<td>#</td>";
+                    html += "<td>min</td>";
+                    html += "<td>hour</td>";
+                html += "</tr>";
+            html += "</table>";
+        $('.hud-right').after(html);
+
+        // add some simple css to the table
+        $("#mk-prm-table").css({
+            'border':'1px solid #ccc',
+            'background-color':'#fff',
+            'width':'92%',
+            'margin-top':'10px',
+            'border-radius':'5px',
+            'opacity':'0.8',
+            'border-spacing':'10px',
+            'border-collapse':'separate'
+        });
+
+    }
+
+    /**
+     * Add restart button HTML
+     */
+    function addRestartButton(){
+
+        // add button with listener
+        let html = '<button id="mk-prm-reset"/>Reset</button>';
+        $('#mk-prm-table').after(html);
+
+        // bind function
+        $("#mk-prm-reset").click(resetList);
+
+        // add some simple css to the button
+        $("#mk-prm-reset").css({
+            'width':'92%',
+            'padding':'10px',
+            'margin':'10px 0px',
+            'border-radius':'5px',
+            'border':'solid 1px #ccc'
+        });
+
+    }
+
+    /**
+     * Add on screen clock to the reset button
+     */
+    function addClock(){
+
+        // don't do any on screen clock if time is set to false
+        if(timeStart == false){
+            return;
+        }
+
+        // start interval if not already started
+        if(timeStart == true){
+
+            // update timeStart
+            timeStart = Date.now();
+
+            // every 1 second, update the on screen timer
+            // Note: this might not be the most efficient way to do this
+            setInterval(function(){
+
+                let diff = new Date() - timeStart;
+                let d = new Date(diff);
+                let hours = formatTwoDigits(d.getHours()-1);
+                let minutes = formatTwoDigits(d.getMinutes());
+                let seconds = formatTwoDigits(d.getSeconds());
+                let string = "Reset : " + hours + ":" + minutes + ":" + seconds;
+
+                $('#mk-prm-reset').html(string);
+
+            },1000);
+
+        }else{
+
+            // update timeStart
+            timeStart = Date.now();
+
+        }
+
+    }
+
     ////////////
     // UTLITY //
     ////////////
@@ -257,6 +316,17 @@
 
         return image;
 
+    }
+
+    /**
+     * This method helps to format a string of two digits.
+     * In case the given number is smaller than 10, it will add a leading zero,
+     * e.g. 08 instead of 8
+     * @param {Number} n - a number with one or two digits
+     * @returns {String} String with two digits
+     */
+    function formatTwoDigits(n) {
+        return n < 10 ? '0' + n : n;
     }
 
 })();
