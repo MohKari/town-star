@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MohKari: Production Rate Monitor With Reset
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Monitor production rate of specified craft items.
 // @author       MohKari
 // @credits      Groove
@@ -23,6 +23,7 @@
     // NOTES //
     ///////////
 
+    // ToDo: Look into why the reset timer starts at 01 for me and 09 for others D:
     // ToDo: Add $$ and points to tracket.
     // ToDo: Add exclude list ( any items you want to perm NOT report ( Petroleum )
 
@@ -249,7 +250,7 @@
         $("#mk-prm-reset").css({
             'width':'92%',
             'padding':'10px',
-            'margin':'10px 0px',
+            'margin-top':'10px',
             'border-radius':'5px',
             'border':'solid 1px #ccc'
         });
