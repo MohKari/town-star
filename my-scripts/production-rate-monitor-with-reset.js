@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MohKari: Production Rate Monitor With Reset
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Monitor production rate of specified craft items.
 // @author       MohKari
 // @credits      Groove
@@ -25,7 +25,6 @@
 
     // 1. I think energy doesn't get tracked?
 
-    // ToDo: Replace item name with image.
     // ToDo: Add on screen timer.
     // ToDo: Add $$ and points to tracket.
     // ToDo: Add exclude list ( any items you want to perm NOT report ( Petroleum )
@@ -96,7 +95,7 @@
      * Add new item to tracked list
      * @param  {[type]} item
      */
-    function newItem(item){
+    async function newItem(item){
 
         console.log("newItem: " + item);
 
@@ -108,17 +107,26 @@
             hour: 0
         };
 
-        // some styles yo!
-        let itemStyle = "max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+        // row's id
+        let id = "mk-prm-" + item;
 
         // add new row to table
-        let html = "<tr id='mk-prm-" + item + "'>";
-                html += "<td class='item' style='" + itemStyle + "'>" + item + "</td>";
+        let html = "<tr id='" + id + "'>";
+                html += "<td class='item'>" + item + "</td>";
                 html += "<td class='count'></td>";
                 html += "<td class='minute'></td>";
                 html += "<td class='hour'></td>";
             html += "</tr>";
         $('#mk-prm-table').append(html);
+
+        // clone image when available
+        let image = await cloneImageWhenAvailable('.hud-craft-display-' + item);
+
+        console.log(image);
+
+        // copy image into my table
+        $('#' + id + ' .item').html("").append(image);
+        $('#' + id + ' .hud-craft-icon').css("width", 24);
 
     }
 
@@ -146,12 +154,8 @@
      */
     function startUI(){
 
-        // some inline css for our table
-        let tableStyle = "border-radius: 8px; box-shadow: 2px 2px 27px 0px #000; border: 1px solid #cccccc; background-color: #ffffff;";
-        tableStyle += "width:100%;"
-
         // add some html
-        let html = "<table id='mk-prm-table' style='" + tableStyle + "'>";
+        let html = "<table id='mk-prm-table'>";
                 html += "<tr>";
                     html += "<td>Item</td>";
                     html += "<td>#</td>";
@@ -161,20 +165,31 @@
             html += "</table>";
         $('.hud-right').after(html);
 
-        // bootstrap like button
-        let buttonStyle = "margin-top:5px; margin-bottom:5px; color:#212529; background-color:#f0ad4e; border-color: #eea236;";
-        buttonStyle += "display: inline-block; margin-bottom: 0; font-weight: 400; text-align: center; white-space: nowrap;";
-        buttonStyle += "vertical-align: middle; -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer;";
-        buttonStyle += "background-image: none; border: 1px solid transparent; padding: 6px 12px; font-size: 14px;";
-        buttonStyle += "line-height: 1.42857143; border-radius: 4px; -webkit-user-select: none; -moz-user-select: none;";
-        buttonStyle += "-ms-user-select: none; user-select: none; font-family: inherit; -webkit-appearance: button; cursor: pointer;";
-        buttonStyle += "text-transform: none; overflow: visible; margin: 0;";
-        buttonStyle += "width:100%;"
+                // add some simple css to the button
+        $("#mk-prm-table").css({
+            'border':'1px solid #ccc',
+            'background-color':'#fff',
+            'width':'92%',
+            'margin-top':'10px',
+            'border-radius':'5px',
+            'opacity':'0.8',
+            'border-spacing':'10px',
+            'border-collapse':'separate'
+        });
 
         // add button with listener
-        let button = '<button id="mk-prm-reset" style="' + buttonStyle + '"/>Reset</button>';
+        let button = '<button id="mk-prm-reset"/>Reset</button>';
         $('#mk-prm-table').after(button);
         $("#mk-prm-reset").click(resetList);
+
+        // add some simple css to the button
+        $("#mk-prm-reset").css({
+            'width':'92%',
+            'padding':'5px',
+            'margin':'10px 0px',
+            'border-radius':'5px',
+            'border':'solid 1px #ccc'
+        });
 
     }
 
@@ -195,7 +210,7 @@
                 super.onArrive();
 
                 // let trackedItem = trackedItems.find(item => item.item.toUpperCase() == this.craft.toUpperCase())
-                let item = this.craft.toUpperCase();
+                let item = this.craft;
 
                 // if we are already tracking the item, update its values
                 if(list[item]){
@@ -221,6 +236,26 @@
             return origReturn ? new TrackUnitDeliverOutputTask(origReturn.unit,origReturn.targetObject,t) : null
 
         }
+
+    }
+
+    ////////////
+    // UTLITY //
+    ////////////
+
+    /**
+     * Clone and return image when available
+     * @param  {[type]} selector [description]
+     */
+    async function cloneImageWhenAvailable(selector) {
+
+        while (!$(selector).find('img').length) {
+            await new Promise( r => setTimeout(r, 500) )
+        }
+
+        let image = $(selector).find('img').clone();
+
+        return image;
 
     }
 
