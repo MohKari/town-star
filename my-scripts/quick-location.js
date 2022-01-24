@@ -24,7 +24,7 @@ $(function() {
     // NOTES //
     ///////////
 
-    // 1. Chance your town will be removed, as the script is faster than a human.
+    // 1. Chance your account will be banned, as the script is faster than a human.
     // 2. Use at your own risk.
     // 3. Conflicts with "Auto Sell" that hits "play now button".
     // 4. Doesn't handle the "pop up" that appears if someone else has actually chosen the location.

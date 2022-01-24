@@ -25,7 +25,10 @@
 
     // 1. I think energy doesn't get tracked?
 
-    // ToDo: Attach the UI to the items on the left.
+    // ToDo: Replace item name with image.
+    // ToDo: Add on screen timer.
+    // ToDo: Add $$ and points to tracket.
+    // ToDo: Add exclude list ( any items you want to perm NOT report ( Petroleum )
 
     // will auto populate/display while game is running
     let list = {};
