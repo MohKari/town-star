@@ -11,7 +11,7 @@ Mostly for debugging.
 Lets you bind key presses to logic. Should "speed up" game play by preventing repetitive clicking.
 
 ### production-rate-monitor-with-reset.js
-Similar to Grooves, but includes a reset button and the tracked item list is self generating.
+Similar to Grooves, but includes a reset button and the tracked item list is self generating, also includes a buggy on screen timer.
 
 ### quick-location-basic.js
 On "The World" screen, allows you to click a tile and "whiz" through the popups.
@@ -21,6 +21,9 @@ On "The World" screen, selects location for you based on given parameters.
 
 ### remove-undesirable-items.js
 Don't use it. - When you have X cash, automatically remove a bunch of items from your town.
+
+### render-on-off.js
+Adds a button onto the UI that you can click to turn the render on/off to increase FPS.
 
 ### upgrade-dirt-roads.js
 Don't use it. - When you have X cash, automatically upgrade all dirt roads.
