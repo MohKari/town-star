@@ -35,6 +35,13 @@
 
             // run
             addButton();
+            
+            // NOTE: This is a "hacky" fix to resolve the "render turns back on, on its own" issue.
+            // NOTE: I've not tested this, I'm 50% paranoid that the render might turn back on for a "good" reason.
+            // set the render value every second
+            setInterval(function(){                
+                app.autoRender = render;                
+            },1000);
 
         }
 
