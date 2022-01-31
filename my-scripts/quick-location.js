@@ -31,7 +31,9 @@ $(function() {
 
     // desired name
     let name = "CaspiansPizza";
-
+    
+    // NOTE: Ignore the t: n: e: s: w: stuff, thats just reference for myself
+    // NOTE: It stands for town:forest, north:mountains, east:river, south:desert, w:ocean etc.
     // locations to try and place town, in order
     let pos = [
         [63, 78],   // t:f n:- e:- s:m w:o
