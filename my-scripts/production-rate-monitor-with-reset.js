@@ -24,6 +24,9 @@
     ///////////
 
     // ToDo: Look into why the reset timer starts at 01 for me and 09 for others D:
+    // I got you bro~ (by jarnMod KFP Sticky Note Service)
+    const timezoneGMT = -7;
+    
     // ToDo: Add $$ and points to tracket.
     // ToDo: Add exclude list ( any items you want to perm NOT report ( Petroleum )
 
@@ -279,7 +282,7 @@
 
                 let diff = new Date() - timeStart;
                 let d = new Date(diff);
-                let hours = formatTwoDigits(d.getHours()-1);
+                let hours = formatTwoDigits(d.getHours()+timezoneGMT); //instead of -1, change to - respective timezone different. This should reset hour to 00
                 let minutes = formatTwoDigits(d.getMinutes());
                 let seconds = formatTwoDigits(d.getSeconds());
                 let string = "Reset : " + hours + ":" + minutes + ":" + seconds;
