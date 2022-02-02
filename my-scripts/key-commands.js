@@ -29,6 +29,7 @@ $(function() {
     // 4. This script "technicaly" performs faster than a human, and could be seen as a unfair advantage, and thus be bannable. - Use at own risk.
     
     // ToDo: Verify that selected tile is empty!
+    // ToDo: Add a "build mode on/off" button to prevent miss fires.
 
     // keybinds to trigger functions
     const binds = {
