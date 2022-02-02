@@ -26,6 +26,7 @@ $(function() {
     // 1. Sometimes when I build a dirt road, and then remove another tile, the dirt road doesn't auto complete.
     // 2. You might want to comment out the remove bind if you are worried you might destroy a building by accident.
     // 3. Script is currently open to "accidental" exploits if you build over a tree, it doesn't cost you anything.
+    // 4. This script "technicaly" performs faster than a human, and could be seen as a unfair advantage, and thus be bannable. - Use at own risk.
     
     // ToDo: Verify that selected tile is empty!
 
