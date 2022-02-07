@@ -37,7 +37,7 @@
     let timeStart = true;
 
     // false = stop a bunch of the console.log messages appearing
-    let debug = false;
+    let output = false;
 
     // observer to check if script should run or not, script wont run if you already have a town placed.
     let observer = new MutationObserver(function(m){
@@ -62,9 +62,9 @@
      * display message/obj to console.log if debug is true
      * @param  {[type]} obj [description]
      */
-    function debug(obj){
+    function _debug(obj){
 
-        if(!debug){
+        if(!output){
             return;
         }
 
@@ -77,7 +77,7 @@
      */
     function resetList(){
 
-        debug("reset button hit.");
+        _debug("reset button hit.");
 
         // remove existing ui
         $('#mk-prm-table').remove();
@@ -96,7 +96,7 @@
      */
     function updateItem(item){
 
-        debug("updateItem: " + item);
+        _debug("updateItem: " + item);
 
         // increase count
         list[item].count++;
@@ -117,7 +117,7 @@
      */
     async function newItem(item){
 
-        debug("newItem: " + item);
+        _debug("newItem: " + item);
 
         // add new default item
         list[item] = {
@@ -154,7 +154,7 @@
      */
     function updateUI(item){
 
-        debug("updateUI: " + item);
+        _debug("updateUI: " + item);
 
         let count = list[item].count;
         let minute = list[item].minute.toFixed(1);
