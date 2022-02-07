@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MohKari: Production Rate Monitor With Reset
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Monitor production rate of specified craft items.
 // @author       MohKari
 // @credits      Groove
@@ -36,6 +36,9 @@
     // if true, you will get a onscreen "stop watch", otherwise set to false
     let timeStart = true;
 
+    // false = stop a bunch of the console.log messages appearing
+    let debug = false;
+
     // observer to check if script should run or not, script wont run if you already have a town placed.
     let observer = new MutationObserver(function(m){
 
@@ -55,13 +58,26 @@
     });
     observer.observe(document, {childList: true , subtree: true});
 
+    /**
+     * display message/obj to console.log if debug is true
+     * @param  {[type]} obj [description]
+     */
+    function debug(obj){
+
+        if(!debug){
+            return;
+        }
+
+        console.log(obj);
+
+    }
 
     /**
      * Resets the tracked items, back to zero!
      */
     function resetList(){
 
-        console.log("reset button hit.");
+        debug("reset button hit.");
 
         // remove existing ui
         $('#mk-prm-table').remove();
@@ -80,7 +96,7 @@
      */
     function updateItem(item){
 
-        console.log("updateItem: " + item);
+        debug("updateItem: " + item);
 
         // increase count
         list[item].count++;
@@ -101,7 +117,7 @@
      */
     async function newItem(item){
 
-        console.log("newItem: " + item);
+        debug("newItem: " + item);
 
         // add new default item
         list[item] = {
@@ -138,7 +154,7 @@
      */
     function updateUI(item){
 
-        console.log("updateUI: " + item);
+        debug("updateUI: " + item);
 
         let count = list[item].count;
         let minute = list[item].minute.toFixed(1);
