@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         MohKari: Automate Gas Production
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Create Gas with just one refinery.
+// @version      0.2
+// @description  Can create Gas with just one refinery.
 // @author       MohKari
+// @credits      stan
 // @match        *://*.sandbox-games.com/*
 // @grant        none
 // @run-at       document-start
@@ -18,12 +19,26 @@
 
     // 1. Toggle "Produce Gas" "on/off" buttons.
 
+    ///////////
+    // NOTES //
+    ///////////
+
+    // When this script is turned "on", it "triggers" whenever ANY of your refineries "craft" a product.
+    // It targets whichever refinery crafted the product and trys to set it to "Petroleum", unless the
+    // refinery just made "Petroleum", in which case the production is set to "Gasoline".
+
+    // ToDo: Allow for user to input a maximum Gasoline/Petroleum/JetFuel amount, and make sure to not go above it
+    // ToDo: Allow user to specify if they want the refinery to produce JetFuel ( no point have 1000000 gas )
+
     // automate gas production? true/false
     let enabled = false;
 
     // just the messages that appear on the button.
     const on = "Gas Production On";
     const off = "Gas Production Off";
+
+    // false = stop a bunch of the console.log messages appearing
+    let output = true;
 
     // observer to check if script should run or not, script wont run if you already have a town placed.
     let observer = new MutationObserver(function(m){
@@ -39,14 +54,8 @@
             // run
             addButton();
 
-            // try to automate gas production every second, if enabled
-            setInterval(function(){
-
-                if(enabled){
-                    tryToAutomateGasProduction();
-                }
-
-            },1000);
+            //...
+            run();
 
         }
 
@@ -107,48 +116,57 @@
 
     }
 
-    /**
-     * Tell all refineries to produce petroleum or gasoline
-     */
-    function tryToAutomateGasProduction(){
+    function run(){
 
-        // how many 'Petroleum' do we have?
-        let count = Game.town.GetStoredCrafts()["Petroleum"];
+        // make a reference to the function i'm about to overwrite, because i want to still do it!
+        let ori = UnitGetOutputTask.prototype.onArrive;
 
-        // get all refineries
-        let items = Object.values(Game.town.objectDict).filter(o => (o.type === 'Refinery'));
+        // overwrite this function
+        // this function triggers whenever a "crafted" item is produced
+        // ( as soon as the lil lab guy runs out of the refinery holding something )
+        UnitGetOutputTask.prototype.onArrive = function(){
 
-        let craftTarget = "Gasoline";
+            // don't forget to still call the original version of this function!
+            ori.call(this);
 
-        // loop through all refineries
-        for (var i = items.length - 1; i >= 0; i--) {
-
-            let item = items[i];
-
-            // what is the refinery currently making?
-            let currentlyMaking = item.logicObject.data.craft;
-
-            // ToDo: Something in here to prevent the loop of..
-            // 1. Worker makes material
-            // 2. Worker deposits material
-            // 3. Worker picks up deposited material
-            // 4. Worker deposits picked up material ( start back at 3 )
-
-            // if we don't know how many we have, or we have 0, then we are making 'Petroleum'
-            if(count == undefined || count == 0){
-                craftTarget = 'Petroleum';
+            // don't do anything if enabled is false
+            if (enabled == false){
+                return;
             }
 
-            // if we are currently making, what we want to make, move onto the next refinery
-            if(currentlyMaking == craftTarget){
-                continue;
-            }
+            let obj = this.targetObject;
 
-            // tell the refinery to make the item
-            console.log("Refinery Crafting: " + craftTarget);
-            item.logicObject.SetCraft(craftTarget);
+            // only do stuff to refineries
+            if(obj.type == "Refinery"){
+
+                 // what we wan't to start crafting ( Petroleum by default? )
+                let craftTarget = "Petroleum";
+
+                // if we just made petroleum, we want to make gasoline
+                if(this.craft == "Petroleum"){
+                    craftTarget = "Gasoline";
+                }
+
+                _debug("Refinery Crafting: " + craftTarget);
+                obj.logicObject.SetCraft(craftTarget);
+
+            }
 
         }
+
+    }
+
+    /**
+     * display message/obj to console.log if debug is true
+     * @param  {[type]} obj [description]
+     */
+    function _debug(obj){
+
+        if(!output){
+            return;
+        }
+
+        console.log(obj);
 
     }
 
