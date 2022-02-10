@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MohKari: Automate Gas Production
 // @namespace    http://tampermonkey.net/
-// @version      0.2
-// @description  Can create Gas with just one refinery.
+// @version      0.3
+// @description  Can create Gas/Petroleum/JetFuel with just one refinery.
 // @author       MohKari
 // @credits      stan
 // @match        *://*.sandbox-games.com/*
@@ -23,19 +23,23 @@
     // NOTES //
     ///////////
 
-    // When this script is turned "on", it "triggers" whenever ANY of your refineries "craft" a product.
-    // It targets whichever refinery crafted the product and trys to set it to "Petroleum", unless the
-    // refinery just made "Petroleum", in which case the production is set to "Gasoline".
+    // Script Behavior / Priority.
+    // Make Gasoline if 1+ petroleum and below max Gasoline.
+    // Make Petroleum if max gas and below max Petroleum.
+    // Make JetFuel if max petroleum and below max JetFuel.
+    // Make "None" if limits are reached, but watch for when amount drops.
 
-    // ToDo: Allow for user to input a maximum Gasoline/Petroleum/JetFuel amount, and make sure to not go above it
-    // ToDo: Allow user to specify if they want the refinery to produce JetFuel ( no point have 1000000 gas )
+    // craft up to these limits.
+    let gasolineLimit = 10;
+    let petroleumLimit = 10;
+    let jetFuelLimit = 10;      // 0 if you never want JetFuel
 
-    // automate gas production? true/false
+    // automate fuel production? true/false
     let enabled = false;
 
     // just the messages that appear on the button.
-    const on = "Gas Production On";
-    const off = "Gas Production Off";
+    const on = "Fuel Production On";
+    const off = "Fuel Production Off";
 
     // false = stop a bunch of the console.log messages appearing
     let output = true;
@@ -121,8 +125,7 @@
         // make a reference to the function i'm about to overwrite, because i want to still do it!
         let ori = UnitGetOutputTask.prototype.onArrive;
 
-        // overwrite this function
-        // this function triggers whenever a "crafted" item is produced
+        // overwrite this function, this function triggers whenever a "crafted" item is produced
         // ( as soon as the lil lab guy runs out of the refinery holding something )
         UnitGetOutputTask.prototype.onArrive = function(){
 
@@ -134,25 +137,119 @@
                 return;
             }
 
+            // object that just "outputted" a material
             let obj = this.targetObject;
 
             // only do stuff to refineries
             if(obj.type == "Refinery"){
 
-                 // what we wan't to start crafting ( Petroleum by default? )
-                let craftTarget = "Petroleum";
+                // what we just crafted
+                let crafted = this.craft;
+                let craftTarget = getCraftTarget(crafted);
 
-                // if we just made petroleum, we want to make gasoline
-                if(this.craft == "Petroleum"){
-                    craftTarget = "Gasoline";
-                }
-
+                // set the craft
                 _debug("Refinery Crafting: " + craftTarget);
-                obj.logicObject.SetCraft(craftTarget);
+                console.log(obj);
+                obj.logicObject.prototype.SetCraft(craftTarget);
+
+                // add watcher if we craft nothing
+                if(craftTarget == "None"){
+
+                    // keep checking if we should make something other than "None"
+                    let interval = setInterval(function(){
+
+                        _debug("Waiting for Refinery craft requirement...");
+
+                        // don't do anything if enabled is false
+                        if (enabled == false){
+                            clearInterval(interval);
+                            return;
+                        }
+
+                        // get the craft target
+                        let craftTarget = getCraftTarget();
+
+                        if(craftTarget != "None"){
+
+                            // stop watcher
+                            clearInterval(interval);
+
+                            // set the craft
+                            _debug("Refinery Crafting: " + craftTarget);
+                            console.log(obj);
+                            obj.logicObject.prototype.SetCraft(craftTarget);
+
+                        }
+
+                    },1000);
+
+                }
 
             }
 
         }
+
+    }
+
+    /**
+     * Figure out what we want to craft next
+     * @param  {[string]} crafted Item just crafted
+     * @return {[string]}         Item we want to craft next
+     */
+    function getCraftTarget(crafted = ""){
+
+        // get current stock levels
+        let storedCrafts = getLatestStoredCrafts(crafted);
+        let jetFuel = storedCrafts["JetFuel"];
+        let petroleum = storedCrafts["Petroleum"];
+        let gasoline = storedCrafts["Gasoline"];
+
+        console.log(jetFuel);
+        console.log(petroleum);
+        console.log(gasoline);
+
+        // default value
+        let craftTarget = "None";
+
+        // try to make gasoline first of all
+        if(petroleum > 0 && gasoline < gasolineLimit){
+
+            craftTarget = "Gasoline";
+
+        // try to make petroleum if we have max gas, but not max petroleum
+        }else if(petroleum < petroleumLimit){
+
+            craftTarget = "Petroleum";
+
+        // try to make jetfuel if we have max petroleum, but not max jetfuel
+        }else if(jetFuel < jetFuelLimit){
+
+            craftTarget = "Petroleum";
+
+        }
+
+        return craftTarget;
+
+    }
+
+    /**
+     * get the latest stored crafts
+     * also include the crafted item
+     * @param  {[string]} crafted name of item just crafted
+     * @return array
+     */
+    function getLatestStoredCrafts(crafted = ""){
+
+        let storedCrafts = Game.town.GetStoredCrafts();
+
+        if(crafted != ""){
+            if(typeof storedCrafts[crafted] === 'undefined'){
+                storedCrafts[crafted] = 0;
+            }
+            storedCrafts[crafted]++;
+        }
+
+        return storedCrafts;
 
     }
 
