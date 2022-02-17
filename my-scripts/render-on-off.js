@@ -18,6 +18,8 @@
     ///////////////////////
 
     // 1. Toggle render "on/off" buttons.
+    
+    // ToDo: Make it so that you can have render set to false on start
 
     // render is on by default
     let render = true;
